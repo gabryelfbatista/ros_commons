@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <arg name="settings"/>
+  <node name="rqt" pkg="rqt_gui" exec="rqt_gui" args="--perspective-file $(var settings)"/>
+</launch>

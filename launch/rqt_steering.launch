@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include file="$(find-pkg-share ros_commons)/launch/rqt.launch">
+    <arg name="settings" value="$(find-pkg-share ros_commons)/config/steering.rqt"/>
+  </include>
+</launch>

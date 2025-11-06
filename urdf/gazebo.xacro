@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Gazebo extension utilities.
+
+  Author: Helio Perroni Filho
+-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro
+    name="depth_camera"
+    params="
+      name
+    "
+  >
+    <gazebo reference="${name}">
+      <sensor type="depth" name="${name}_sensor">
+        <!-- Set always_on only sensor, not on plugin -->
+        <always_on>1</always_on>
+
+        <!-- Set update_rate only sensor, not on plugin -->
+        <update_rate>30</update_rate>
+
+        <camera name="${name}_intrinsics">
+<!--          <distortion>
+            <k1>0.1</k1>
+            <k2>0.2</k2>
+            <k3>0.3</k3>
+            <p1>0.4</p1>
+            <p2>0.5</p2>
+            <center>0.5 0.5</center>
+          </distortion>-->
+        </camera>
+
+        <plugin name="${name}_plugin" filename="libgazebo_ros_camera.so">
+          <!-- Change namespace, camera name and topics so -
+                * Raw images are published to: /custom_ns/custom_camera/custom_image
+                * Depth images are published to: /custom_ns/custom_camera/custom_image_depth
+                * Raw image camera info is published to: /custom_ns/custom_camera/custom_info_raw
+                * Depth image camera info is published to: /custom_ns/custom_camera/custom_info_depth
+                * Point cloud is published to: /custom_ns/custom_camera/custom_points
+          -->
+          <ros>
+            <!--<namespace>custom_ns</namespace>-->
+            <remapping>${name}/image_raw:=${name}/color/image_raw</remapping>
+            <remapping>${name}/image_depth:=${name}/depth/image_rect</remapping>
+            <remapping>${name}/camera_info:=${name}/color/camera_info</remapping>
+            <remapping>${name}/camera_info_depth:=${name}/depth/camera_info</remapping>
+            <!--<remapping>custom_camera/points:=custom_camera/custom_points</remapping>-->
+          </ros>
+
+          <!-- Set camera name. If empty, defaults to sensor name (i.e. "sensor_name") -->
+          <camera_name>${name}</camera_name>
+
+          <!-- Set TF frame name. If empty, defaults to link name (i.e. "link_name") -->
+          <frame_name>${name}_optical</frame_name>
+
+          <hack_baseline>0.07</hack_baseline>
+
+          <!-- No need to repeat distortion parameters or to set autoDistortion -->
+
+          <min_depth>0.001</min_depth>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro
+    name="lidar_2d"
+    params="
+      name
+    "
+  >
+    <gazebo reference="${name}">
+      <sensor type="ray" name="${name}_sensor">
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${720 * 2}</samples>
+              <resolution>1</resolution>
+              <min_angle>-${M_PI}</min_angle>
+              <max_angle>${M_PI}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>30.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <!-- Using gazebo's noise instead of plugin's -->
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <!-- Using gazebo's update rate instead of plugin's -->
+        <update_rate>30</update_rate>
+
+        <plugin name="${name}_plugin" filename="libgazebo_ros_ray_sensor.so">
+          <!-- Change namespace and output topic so published topic is /rrbot/laser/scan -->
+          <ros>
+            <!--<namespace>/rrbot/laser</namespace>-->
+            <remapping>~/out:=scan</remapping>
+          </ros>
+          <!-- Set output to sensor_msgs/LaserScan to get same output type as gazebo_ros_laser -->
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <frame_name>${name}</frame_name>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+
+  <xacro:macro
+    name="differential_controller"
+    params="
+      name
+      left_joint
+      right_joint
+      wheel_diameter
+      wheel_separation
+    "
+  >
+    <gazebo>
+      <plugin name="${name}_controller" filename="libgazebo_ros_diff_drive.so">
+        <update_rate>50</update_rate>
+        <left_joint>${left_joint}</left_joint>
+        <right_joint>${right_joint}</right_joint>
+        <wheel_diameter>${wheel_diameter}</wheel_diameter>
+        <wheel_separation>${wheel_separation}</wheel_separation>
+
+        <max_wheel_torque>20</max_wheel_torque>
+        <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+        <command_topic>cmd_vel</command_topic>
+        <odometry_topic>odom</odometry_topic>
+
+        <odometry_frame>odom</odometry_frame>
+        <robot_base_frame>base_link</robot_base_frame>
+
+        <publish_odom>true</publish_odom>
+        <publish_odom_tf>true</publish_odom_tf>
+        <publish_wheel_tf>false</publish_wheel_tf>
+        <publish_wheel_joint_state>true</publish_wheel_joint_state>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- See: http://sdformat.org/tutorials?tut=sdformat_urdf_extensions&cat=specification -->
+  <xacro:macro
+    name="remove_friction"
+    params="position"
+  >
+    <gazebo reference="wheel_${position}_left">
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+    </gazebo>
+    <gazebo reference="wheel_${position}_right">
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+    </gazebo>
+  </xacro:macro>
+</robot>
