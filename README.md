@@ -1,10 +1,10 @@
 # ros_commons
 
-Este pacote foi desenvolvido como parte de uma disciplina de robótica, com o objetivo de reunir recursos compartilhados entre diferentes simulações do projeto ROSbot 3. Ele agrupa utilidades de configuração, macros URDF e lançadores que apoiam o desenvolvimento e a validação de novos comportamentos para o robô.
+Este pacote foi desenvolvido como parte de uma disciplina de robótica, com o objetivo de reunir recursos compartilhados entre diferentes simulações do projeto ROSbot 3.
 
 ## Conteúdo
 - `config/steering.rqt`: layout salvo do painel RQT para teleoperação diferencial do robô.
-- `launch/rqt.launch` e `launch/rqt_steering.launch`: lançadores prontos para abrir a interface RQT com os plugins necessários para monitorar tópicos e publicar comandos de velocidade.
+- launchers para rqt e rviz: lançadores prontos para abrir a interface RQT e RViz com os plugins necessários para monitorar tópicos e publicar comandos de velocidade.
 - `urdf/domain.xacro`: macros genéricas reutilizadas em múltiplas descrições do robô.
 - `urdf/gazebo.xacro`: extensões específicas para simulação no Gazebo, incluindo sensores e controladores.
 
@@ -30,5 +30,5 @@ Este pacote foi desenvolvido como parte de uma disciplina de robótica, com o ob
      wheel_diameter_1="${wheel_diameter}"
    />
    ```
-3. Utilize os lançadores RQT para inspeção rápida dos tópicos de interesse durante os experimentos.
+3. Utilize os lançadores RQT e Rviz para inspeção rápida dos tópicos de interesse durante os experimentos.
 
