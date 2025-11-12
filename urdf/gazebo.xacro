@@ -111,43 +111,68 @@
     </gazebo>
   </xacro:macro>
 
+  <!--
+    Skid steer controller for Gazebo.
+
+    Author: Gabryel Batista
+  -->
 
   <xacro:macro
-    name="differential_controller"
+    name="skid_steer_controller"
     params="
       name
-      left_joint
-      right_joint
-      wheel_diameter
-      wheel_separation
+      left_joint_0
+      right_joint_0
+      left_joint_1
+      right_joint_1
+      wheel_separation_0
+      wheel_diameter_0
+      wheel_separation_1
+      wheel_diameter_1
+      publish_odom:=false
     "
   >
     <gazebo>
+      <plugin name="${name}_joint_states" filename="libgazebo_ros_joint_state_publisher.so">
+        <joint_name>${left_joint_0}</joint_name>
+        <joint_name>${right_joint_0}</joint_name>
+        <joint_name>${left_joint_1}</joint_name>
+        <joint_name>${right_joint_1}</joint_name>
+      </plugin>
+
       <plugin name="${name}_controller" filename="libgazebo_ros_diff_drive.so">
+        <ros>
+          </ros>
+
         <update_rate>50</update_rate>
-        <left_joint>${left_joint}</left_joint>
-        <right_joint>${right_joint}</right_joint>
-        <wheel_diameter>${wheel_diameter}</wheel_diameter>
-        <wheel_separation>${wheel_separation}</wheel_separation>
+
+        <num_wheel_pairs>2</num_wheel_pairs>
+
+        <left_joint>${left_joint_0}</left_joint>
+        <right_joint>${right_joint_0}</right_joint>
+
+        <left_joint>${left_joint_1}</left_joint>
+        <right_joint>${right_joint_1}</right_joint>
+
+        <wheel_separation>${wheel_separation_0}</wheel_separation>
+        <wheel_diameter>${wheel_diameter_0}</wheel_diameter>
+
+        <wheel_separation>${wheel_separation_1}</wheel_separation>
+        <wheel_diameter>${wheel_diameter_1}</wheel_diameter>
 
         <max_wheel_torque>20</max_wheel_torque>
         <max_wheel_acceleration>1.0</max_wheel_acceleration>
 
-        <command_topic>cmd_vel</command_topic>
-        <odometry_topic>odom</odometry_topic>
-
+        <publish_odom>${publish_odom}</publish_odom>
+        <publish_odom_tf>${publish_odom}</publish_odom_tf>
+        <publish_wheel_tf>true</publish_wheel_tf> 
         <odometry_frame>odom</odometry_frame>
         <robot_base_frame>base_link</robot_base_frame>
 
-        <publish_odom>true</publish_odom>
-        <publish_odom_tf>true</publish_odom_tf>
-        <publish_wheel_tf>false</publish_wheel_tf>
-        <publish_wheel_joint_state>true</publish_wheel_joint_state>
       </plugin>
     </gazebo>
   </xacro:macro>
 
-  <!-- See: http://sdformat.org/tutorials?tut=sdformat_urdf_extensions&cat=specification -->
   <xacro:macro
     name="remove_friction"
     params="position"
